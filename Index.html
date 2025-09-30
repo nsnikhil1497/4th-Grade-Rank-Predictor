@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4th Grade Rank Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Premium Look CSS */
+    :root {
+      --primary-color: #3f51b5; /* Deep Indigo Blue */
+      --secondary-color: #4caf50; /* Success Green */
+      --background-color: #e8eaf6; 
+      --card-bg: #ffffff;
+      --text-color: #333333;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text-color);
+    }
+    
+    .container {
+      background-color: var(--card-bg);
+      padding: 0;
+      border-radius: 16px; 
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); 
+      max-width: 650px;
+      width: 95%;
+      overflow: hidden;
+      border: 1px solid #ddd;
+    }
+    
+    /* Header and Tabs */
+    h2 {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 25px 0;
+      text-align: center;
+      font-weight: 700;
+      font-size: 2em;
+      margin: 0;
+    }
+
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid var(--primary-color);
+        background-color: #f7f9fd;
+    }
+
+    .tab-button {
+        flex-grow: 1;
+        padding: 18px 0;
+        text-align: center;
+        cursor: pointer;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        color: #555;
+        transition: all 0.3s ease-in-out;
+        font-size: 1.1em;
+    }
+
+    .tab-button:hover:not(.active) {
+        background-color: #e0e7ff;
+        color: var(--primary-color);
+    }
+
+    .tab-button.active {
+        color: var(--primary-color);
+        background-color: var(--card-bg);
+        border-bottom: 3px solid var(--primary-color);
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Tab Content Area */
+    .tab-content {
+        padding: 30px;
+    }
+
+    /* Form and Input Styling */
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    
+    input[type="text"], 
+    input[type="number"], 
+    select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: all 0.3s;
+      font-size: 1em;
+      background-color: #f9f9f9;
+    }
+    
+    input:focus, 
+    select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+      background-color: var(--card-bg);
+    }
+
+    /* Button Styling */
+    .btn {
+      background-color: var(--secondary-color); 
+      color: white;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1.15em;
+      font-weight: 700;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    
+    .btn:hover {
+      background-color: #43a047;
+      transform: translateY(-1px);
+    }
+    
+    .btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Result Box */
+    .result-box {
+      margin-top: 30px;
+      padding: 25px;
+      border-radius: 10px;
+      background-color: #e3f2fd; 
+      text-align: center;
+      font-size: 1.1em;
+      font-weight: 500;
+      border-left: 5px solid var(--primary-color);
+    }
+    
+    .result-box strong {
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+
+    .result-box .score {
+        font-size: 1.6em;
+        margin-bottom: 15px;
+        color: var(--secondary-color);
+    }
+
+    .result-box hr {
+        border: none;
+        border-top: 1px dashed #c0c0c0;
+        margin: 15px auto;
+        width: 70%;
+    }
+
+    /* Error Message */
+    .error-message {
+      color: #e53935; 
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid #ffcdd2;
+      background-color: #ffebee;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    
+    /* Loading Spinner */
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block; 
+        margin-left: 10px;
+        vertical-align: middle;
+        display: none;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>4th Grade Rank Predictor</h2>
+
+  <div class="tabs">
+      <button class="tab-button active" onclick="openTab(event, 'submission')">Submit Score</button>
+      <button class="tab-button" onclick="openTab(event, 'search')">Check Current Rank</button>
+  </div>
+
+  <div id="submission" class="tab-content">
+    <form id="predictorForm">
+      
+      <div class="form-group">
+        <label for="rollNo">Roll No. (7 digits)</label>
+        <input type="number" id="rollNo" name="rollNo" placeholder="Enter 7-digit Roll No." required minlength="7" maxlength="7">
+      </div>
+      
+      <div class="form-group">
+        <label for="name">Candidate Name</label>
+        <input type="text" id="name" name="name" placeholder="Full Name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+          <option value="">Select Category</option>
+          <option value="General">General</option>
+          <option value="EWS">EWS</option> <option value="OBC">OBC</option>
+          <option value="SC">SC</option>
+          <option value="ST">ST</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="shift">Shift</label>
+        <select id="shift" name="shift" required>
+          <option value="">Select Shift</option>
+          <option value="Shift 1">Shift 1</option>
+          <option value="Shift 2">Shift 2</option>
+          <option value="Shift 3">Shift 3</option>
+          <option value="Shift 4">Shift 4</option> <option value="Shift 5">Shift 5</option>
+          <option value="Shift 6">Shift 6</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="attempted">Attempted Questions (Max 120)</label>
+        <input type="number" id="attempted" name="attempted" required min="0" max="120">
+      </div>
+
+      <div class="form-group">
+        <label for="correct">Correct Questions</label>
+        <input type="number" id="correct" name="correct" required min="0" max="120">
+      </div>
+
+      <div class="form-group">
+        <label for="wrong">Wrong Questions</label>
+        <input type="number" id="wrong" name="wrong" required min="0" max="120">
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Submit Score & Get Rank</button>
+      <p class="error-message" id="errorMessage"></p>
+    </form>
+    
+    <div class="result-box" id="result">
+      Your predicted rank will appear here after submission.
+    </div>
+  </div>
+
+  <div id="search" class="tab-content" style="display:none;">
+      <form id="searchForm">
+          <div class="form-group">
+              <label for="searchRollNo">Enter Roll No. to Check Current Rank</label>
+              <input type="number" id="searchRollNo" name="searchRollNo" placeholder="Enter 7-digit Roll No." required minlength="7" maxlength="7">
+          </div>
+          <button type="submit" class="btn search-btn">Check Current Rank</button>
+          <p class="error-message" id="searchErrorMessage"></p>
+      </form>
+      
+      <div class="result-box" id="searchResult">
+        Search results will appear here. Ranks update as more data is submitted.
+      </div>
+  </div>
+
+</div>
+
+<script>
+  // Global helper to manage button state and loading spinner
+  function toggleButtonState(btnId, loading, defaultText, error=false) {
+      const btn = document.getElementById(btnId);
+      const spinner = document.createElement('span');
+      spinner.className = 'loading-spinner';
+      
+      if (loading) {
+          btn.disabled = true;
+          btn.textContent = 'Processing...';
+          btn.appendChild(spinner);
+          spinner.style.display = 'inline-block';
+      } else {
+          btn.disabled = false;
+          btn.textContent = defaultText;
+          const existingSpinner = btn.querySelector('.loading-spinner');
+          if (existingSpinner) {
+              btn.removeChild(existingSpinner);
+          }
+      }
+      
+      const errorMsgId = btnId === 'submitBtn' ? 'errorMessage' : 'searchErrorMessage';
+      if (error) {
+          document.getElementById(errorMsgId).textContent = error;
+      } else {
+          document.getElementById(errorMsgId).textContent = '';
+      }
+  }
+  
+  // Tab Switching Functionality
+  function openTab(evt, tabName) {
+      const tabContents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabContents.length; i++) {
+          tabContents[i].style.display = "none";
+      }
+
+      const tabButtons = document.getElementsByClassName("tab-button");
+      for (let i = 0; i < tabButtons.length; i++) {
+          tabButtons[i].classList.remove("active");
+      }
+
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.classList.add("active");
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('submission').style.display = 'block';
+  });
+
+
+  // Tab 1: Score Submission Logic (Uses processSubmission in Code.gs)
+  document.getElementById('predictorForm').addEventListener('submit', function(e) {
+    e.preventDefault(); 
+    
+    // --- Validation ---
+    const form = e.target;
+    const formData = {
+      rollNo: form.rollNo.value.trim(),
+      name: form.name.value.trim(),
+      category: form.category.value,
+      shift: form.shift.value,
+      attempted: form.attempted.value,
+      correct: form.correct.value,
+      wrong: form.wrong.value,
+    };
+    
+    const correct = parseInt(formData.correct);
+    const wrong = parseInt(formData.wrong);
+    const attempted = parseInt(formData.attempted);
+
+    if ( (correct + wrong) > attempted || attempted > 120 || correct > 120 || wrong > 120) {
+      toggleButtonState('submitBtn', false, 'Submit Score & Get Rank', "Input error: Check question counts (max 120) and ensure Correct + Wrong <= Attempted.");
+      return;
+    }
+    
+    // UI Feedback: Start Loading
+    toggleButtonState('submitBtn', true, 'Submit Score & Get Rank');
+    document.getElementById('result').innerHTML = "Calculating rank...";
+
+
+    // Call Apps Script function
+    google.script.run
+      .withSuccessHandler(showSubmissionResult) 
+      .withFailureHandler(showSubmissionError)   
+      .processSubmission(formData);   
+  });
+
+  function showSubmissionResult(result) {
+    // UI Feedback: Stop Loading
+    toggleButtonState('submitBtn', false, 'Submit Score & Get Rank');
+
+    if (result.success) {
+      document.getElementById('result').innerHTML = `
+        <div class="score">Raw Score: <strong>${result.rawScore}</strong></div>
+        <hr>
+        <p>Overall Rank: <strong>#${result.overallRank}</strong></p>
+        <p>Category Rank: <strong>#${result.categoryRank}</strong></p>
+        <p>Shift Rank: <strong>#${result.shiftRank}</strong></p>
+      `;
+    } else {
+      toggleButtonState('submitBtn', false, 'Submit Score & Get Rank', result.message);
+      document.getElementById('result').innerHTML = "Your predicted rank will appear here after submission."; 
+    }
+  }
+
+  function showSubmissionError(error) {
+    // UI Feedback: Stop Loading and Show Error
+    toggleButtonState('submitBtn', false, 'Submit Score & Get Rank', "An unexpected error occurred: " + error.message);
+    document.getElementById('result').innerHTML = "Your predicted rank will appear here after submission.";
+  }
+  
+  // Tab 2: Rank Search Logic (Uses searchRankByRollNo in Code.gs)
+  document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault(); 
+    
+    const rollNo = document.getElementById('searchRollNo').value.trim();
+
+    // UI Feedback: Start Loading
+    const searchBtn = document.querySelector('.search-btn');
+    searchBtn.id = 'searchBtn'; 
+    toggleButtonState('searchBtn', true, 'Check Current Rank');
+    
+    document.getElementById('searchResult').innerHTML = "Searching for rank...";
+
+    // Call Apps Script function
+    google.script.run
+      .withSuccessHandler(showSearchResult)
+      .withFailureHandler(showSearchError)
+      .searchRankByRollNo(rollNo);
+  });
+  
+  function showSearchResult(result) {
+    // UI Feedback: Stop Loading
+    toggleButtonState('searchBtn', false, 'Check Current Rank');
+
+    if (result.success) {
+      document.getElementById('searchResult').innerHTML = `
+        <p>Candidate: <strong>${result.name}</strong></p>
+        <div class="score">Raw Score: <strong>${result.rawScore}</strong></div>
+        <hr>
+        <p>Overall Rank: <strong>#${result.overallRank}</strong></p>
+        <p>Category Rank: <strong>#${result.categoryRank}</strong></p>
+        <p>Shift Rank: <strong>#${result.shiftRank}</strong></p>
+      `;
+    } else {
+      toggleButtonState('searchBtn', false, 'Check Current Rank', result.message);
+      document.getElementById('searchResult').innerHTML = "Search results will appear here. Ranks update as more data is submitted."; 
+    }
+  }
+  
+  function showSearchError(error) {
+    // UI Feedback: Stop Loading and Show Error
+    toggleButtonState('searchBtn', false, 'Check Current Rank', "An unexpected error occurred: " + error.message);
+    document.getElementById('searchResult').innerHTML = "Search results will appear here. Ranks update as more data is submitted.";
+  }
+</script>
+
+</body>
+</html>
